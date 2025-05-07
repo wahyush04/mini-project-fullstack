@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid()) @db.Char(36)
+  fullname    String   @db.VarChar(255)
+  username    String   @unique @db.VarChar(255)
+  email       String   @unique @db.VarChar(255)
+  phoneNumber String   @unique @db.VarChar(255)
+  password    String   @db.VarChar(255)
+  active      Boolean  @default(false) @db.TinyInt
+  data        Json?    @db.Json
+  createdAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp
+  updatedAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")) @db.Timestamp
+
+  Exam Exam[]
+  Log  Log[]
+
+  @@map("users")
+}
+
+model Exam {
+  id        String   @id @default(uuid()) @db.Char(36)
+  userId    String   @db.Char(36)
+  data      Json?    @db.Json
+  tag       String?  @db.VarChar(255)
+  active    Boolean  @default(false) @db.TinyInt
+  createdAt DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp
+  updatedAt DateTime @default(dbgenerated("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")) @db.Timestamp
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("exams")
+}
+
+model TryoutSection {
+  id          String   @id @default(uuid()) @db.Char(36)
+  code        String   @db.VarChar(255)
+  description String?  @db.Text
+  title       String   @db.VarChar(255)
+  order       Int?     @db.Int
+  data        Json?    @db.Json
+  tag         String?  @db.VarChar(255)
+  active      Boolean  @default(false) @db.TinyInt
+  createdAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp
+  updatedAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")) @db.Timestamp
+
+  @@map("tryout_sections") // maps the model to the actual table name
+}
+
+model Log {
+  id          String   @id @default(uuid()) @db.Char(36)
+  userId      String   @db.Char(36)
+  code        String   @db.VarChar(255)
+  action      String   @db.VarChar(255)
+  description String?  @db.Text
+  data        Json     @db.Json
+  createdAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp
+  updatedAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")) @db.Timestamp
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("logs") // map to actual table name
+}
+
+model Course {
+  id          String   @id @default(uuid()) @db.Char(36)
+  code        String   @unique @db.VarChar(255)
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  order       Int?
+  data        Json?    @db.Json
+  tag         String?  @db.VarChar(255)
+  active      Boolean  @default(false) @db.TinyInt
+  createdAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp
+  updatedAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")) @db.Timestamp
+
+  @@map("courses")
+}
