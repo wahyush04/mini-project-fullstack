@@ -7,10 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate": "npx prisma migrate dev --schema=prisma/schema.prisma",
     "reset": "npx prisma migrate reset --schema=prisma/schema.prisma",
-    "dev": "npx prisma migrate dev --schema=prisma/schema.prisma",
+    "dev": "npx tsc && node dist/server.js",
     "generate": "npx prisma generate --schema=prisma/schema.prisma",
     "seed": "ts-node --transpile-only prisma/seed.ts",
-    "remove-mf": "rm -rf prisma/migrations"
+    "remove-mf": "rm -rf prisma/migrations",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,7 @@
     "@faker-js/faker": "^9.7.0",
     "@prisma/client": "^6.7.0",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "joi": "^17.13.3",
@@ -28,6 +30,7 @@
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/node": "^22.15.12",
     "nodemon": "^3.1.10",
