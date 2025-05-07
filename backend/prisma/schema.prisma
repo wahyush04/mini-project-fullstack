@@ -22,7 +22,7 @@ model User {
   email        String   @unique @db.VarChar(255)
   phoneNumber  String   @unique @db.VarChar(255)
   password     String   @db.VarChar(255)
-  active       Boolean  @default(false) @db.TinyInt
+  active       Boolean  @default(true) @db.TinyInt
   data         Json?    @db.Json
   createdAt    DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp
   updatedAt    DateTime @default(dbgenerated("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")) @db.Timestamp
@@ -38,7 +38,7 @@ model Exam {
   userId      String   @db.Char(36)
   data        Json?    @db.Json
   tag         String?  @db.VarChar(255)
-  active      Boolean  @default(false) @db.TinyInt
+  active      Boolean  @default(true) @db.TinyInt
   createdAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp
   updatedAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")) @db.Timestamp
 
@@ -55,7 +55,7 @@ model TryoutSection {
   order       Int?     @db.Int
   data        Json?    @db.Json
   tag         String?  @db.VarChar(255)
-  active      Boolean  @default(false) @db.TinyInt
+  active      Boolean  @default(true) @db.TinyInt
   createdAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp
   updatedAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")) @db.Timestamp
 
@@ -85,7 +85,7 @@ model Course {
   order       Int?
   data        Json?    @db.Json
   tag         String?  @db.VarChar(255)
-  active      Boolean  @default(false) @db.TinyInt
+  active      Boolean  @default(true) @db.TinyInt
   createdAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP")) @db.Timestamp
   updatedAt   DateTime @default(dbgenerated("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")) @db.Timestamp
 
