@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/ExampleNavbar';
 import Home from './pages/Home';
 import About from './pages/About';
-import ExamplePage from './pages/ExamplePage';
+import UserDetail from './components/userDetail';
 import { Toaster } from 'react-hot-toast';
 
 function App() {
@@ -13,7 +13,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/users" element={<ExamplePage />} />
+        {/* <Route path="/users" element={<ExamplePage />} /> */}
+        <Route path="/user/detail" element={<UserDetail />} />
       </Routes>
       <Toaster position="top-right" />
     </div>

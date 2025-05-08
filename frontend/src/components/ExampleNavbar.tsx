@@ -14,6 +14,9 @@ const Navbar = () => {
       <Link to="/users" className="flex items-center gap-1 text-blue-600 hover:underline">
         <Info size={20} /> User List
       </Link>
+      <Link to="/user/detail" className="flex items-center gap-1 text-blue-600 hover:underline">
+        <Info size={20} /> User Detail
+      </Link>
     </nav>
   );
 };
