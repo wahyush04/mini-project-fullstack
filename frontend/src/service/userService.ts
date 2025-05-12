@@ -1,4 +1,4 @@
-import type { UserModel } from '../types/user';
+import type { UserModel } from '../types/user.type';
 import { createApiStore } from '../store/createApiStore';
 
 // Create stores with appropriate type parameters

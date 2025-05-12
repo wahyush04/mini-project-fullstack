@@ -12,3 +12,12 @@ export const getUserById = async (req: Request, res: Response) => {
   if (!course) res.status(404).json({ message: 'Course not found' });
   res.json(course);
 };
+
+export const updateUserPoints = async (req: Request, res: Response) => {
+  try {
+    const result = await UserService.updateUserPoint(req.params.id, req.body.points);
+    res.status(200).json({ message: "Update Exam Successfully", data: result });
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
+  }
+};

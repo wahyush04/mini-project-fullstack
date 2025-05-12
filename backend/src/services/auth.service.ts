@@ -1,4 +1,3 @@
-// src/services/auth.service.ts
 import { prisma } from '../prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -32,5 +31,5 @@ export const loginUser = async (email: string, password: string) => {
   if (!isMatch) throw new Error('Invalid credentials');
 
   const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1d' });
-  return { user: { id: user.id, name: user.fullname, email: user.email }, token };
+  return { user: { id: user.id, name: user.fullname, email: user.email, data: user.data }, token };
 };

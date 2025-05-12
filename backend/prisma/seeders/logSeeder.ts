@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
@@ -10,11 +10,11 @@ export const seedLogs = async () => {
     await prisma.log.create({
       data: {
         userId: user.id,
-        code: faker.string.uuid(),
+        code: faker.helpers.arrayElement(['COMPLETE_TRYOUT_SECTION', 'COMPLETE_COURSE']),
         action: faker.hacker.verb(),
         description: faker.lorem.sentence(),
         data: {
-          ip: faker.internet.ip(),
+          point: faker.number.int({ min: 100, max: 1000 }),
         },
       },
     });

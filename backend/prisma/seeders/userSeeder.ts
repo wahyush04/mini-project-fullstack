@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
@@ -14,7 +14,10 @@ export const seedUsers = async (count: number = 10) => {
         password: faker.internet.password(),
         active: faker.datatype.boolean(),
         data: {
-          bio: faker.lorem.sentence(),
+          points: faker.number.int({ min: 1000, max: 5000 }),
+          role: faker.helpers.arrayElement(['admin', 'student']),
+          biography: faker.lorem.paragraph(),
+          profilePhoto: faker.image.avatar(),
         },
       },
     });

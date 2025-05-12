@@ -1,5 +1,6 @@
 export enum CompleteStatusType {
-    COMPLETED = "COMPLETED",
-    CANCELLED = "CANCELLED",
-    IN_PROGRESS = "IN-PROGRESS"
+    COMPLETED = "completed",
+    CANCELLED = "cancelled",
+    IN_PROGRESS = "in-progress",
+    SUBMITED = "submitted"
 }

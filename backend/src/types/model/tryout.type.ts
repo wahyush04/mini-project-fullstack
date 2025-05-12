@@ -6,6 +6,7 @@ export interface TryoutSectionModel {
     title: string;
     order: number;
     tag: string;
+    active: boolean;
     data: TryoutSectionDataModel;
 }
 

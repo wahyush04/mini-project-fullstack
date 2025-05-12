@@ -6,6 +6,7 @@ export interface LogModel {
     code: ExamsCompleteType;
     active: boolean;
     description: string;
+    username: string;
     data: LogDataModel;
 }
 

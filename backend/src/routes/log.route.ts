@@ -3,6 +3,7 @@ import * as LogController from '../controllers/log.controller';
 
 const router = express.Router();
 
-router.get('/completed-exams/:userId', LogController.getUserLogs);
+router.get('/completed-exams', LogController.getUserLogs);
+router.post('/create-and-update', LogController.createLogsAndUpdateStatus);
 
 export default router;

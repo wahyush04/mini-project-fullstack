@@ -1,6 +1,6 @@
 // src/hooks/useUser.ts
 import { useCallback, useEffect } from 'react';
-import type { UserModel } from '../types/user';
+import type { UserModel } from '../types/user.type';
 import { useUserStore, UserService } from '../service/userService';
 import { useApiError } from './useApi';
 
