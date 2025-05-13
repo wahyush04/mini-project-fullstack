@@ -1,14 +1,13 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { getProducts } from "../lib/productService";
 import type { Product } from "../components/pos/ProductCard";
 import CourseLayout from "../components/layout/CourseLayout";
 import CourseGrid from "../components/courses/CourseGrid";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import CourseGridTryout from "@/components/courses/TryoutSectionGrid";
 
-const POS = () => {
+const Dashboard = () => {
   const [courses, setCourses] = useState<Product[]>([]);
   const [activeTab, setActiveTab] = useState<string>("courses");
   const navigate = useNavigate();
@@ -24,13 +23,7 @@ const POS = () => {
       navigate("/admin");
     }
 
-    // Load courses (using the existing products as courses for now)
-    const allCourses = getProducts().map(product => ({
-      ...product,
-      type: product.id % 2 === 0 ? "course" : "tryout", // For demo: even IDs are courses, odd are tryouts
-      description: `This is a ${product.id % 2 === 0 ? "course" : "tryout"} about ${product.name}. Learn everything you need to know!`
-    }));
-    setCourses(allCourses);
+    
   }, [navigate]);
 
   const handleLogout = () => {
@@ -38,9 +31,6 @@ const POS = () => {
     navigate("/login");
   };
 
-  const filteredCourses = courses.filter(
-    course => activeTab === "courses" ? course.type === "course" : course.type === "tryout"
-  );
 
   return (
     <CourseLayout>
@@ -64,14 +54,14 @@ const POS = () => {
             <div>
               <h2 className="text-xl font-semibold mb-2">Available Courses</h2>
               <p className="text-pos-neutral mb-4">Select a course to learn more</p>
-              <CourseGrid courses={filteredCourses} />
+              <CourseGrid />
             </div>
           </TabsContent>
           <TabsContent value="tryouts" className="mt-6">
             <div>
               <h2 className="text-xl font-semibold mb-2">Available Tryouts</h2>
               <p className="text-pos-neutral mb-4">Test your knowledge with these tryouts</p>
-              <CourseGrid courses={filteredCourses} />
+              <CourseGridTryout />
             </div>
           </TabsContent>
         </Tabs>
@@ -80,4 +70,4 @@ const POS = () => {
   );
 };
 
-export default POS;
+export default Dashboard;

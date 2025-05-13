@@ -48,7 +48,8 @@ const Login = () => {
     isLoading: authLoading,
     isError,
     errorMessage,
-    status
+    status,
+    reset
   } = useAuth();
 
 
@@ -72,7 +73,10 @@ const Login = () => {
     if (authData) {
       localStorage.setItem("user", JSON.stringify({
         email: authData.data.user.email,
-        role: authData.data.user.data.role
+        role: authData.data.user.data.role,
+        name: authData.data.user.name,
+        userId: authData.data.user.id,
+        token: authData.data.token
       }));
   
       toast.success("Login successful!");
@@ -83,6 +87,8 @@ const Login = () => {
         navigate("/pos");
       }
     }
+
+    reset();
   
     if (isError) {
       toast.error(errorMessage);

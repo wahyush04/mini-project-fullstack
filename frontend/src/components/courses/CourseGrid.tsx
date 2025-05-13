@@ -1,14 +1,23 @@
-
-import React from 'react';
 import CourseCard from './CourseCard';
-import type { Product } from '../pos/ProductCard';
+import { useCourses } from '../../hooks/useCourses';
 
-interface CourseGridProps {
-  courses: Product[];
-}
+const CourseGrid = () => {
+  const {
+    courses,
+    isLoading,
+    isError,
+    errorMessage  
+  } = useCourses();
 
-const CourseGrid: React.FC<CourseGridProps> = ({ courses }) => {
-  if (courses.length === 0) {
+  if (isLoading) {
+    return <div>Loading courses...</div>;
+  }
+
+  if (isError) {
+    return <div className="text-red-500">{errorMessage}</div>;
+  }
+
+  if (!courses?.data.length) {
     return (
       <div className="text-center p-8 border border-dashed rounded-lg">
         <p className="text-gray-500">No courses available</p>
@@ -18,8 +27,8 @@ const CourseGrid: React.FC<CourseGridProps> = ({ courses }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {courses.map((course) => (
-        <CourseCard key={course.id} course={course} />
+      {courses.data.map((course) => (
+        <CourseCard key={course.id} course={course} type="course" />
       ))}
     </div>
   );

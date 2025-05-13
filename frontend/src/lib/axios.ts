@@ -10,16 +10,28 @@ const apiClient = axios.create({
 });
 
 // Request interceptor for adding auth token
-// apiClient.interceptors.request.use(
-//   (config) => {
-//     const token = localStorage.getItem('auth_token');
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-//     return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
+import type { InternalAxiosRequestConfig } from 'axios';
+
+apiClient.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const userDataString = localStorage.getItem("user");
+
+    if (userDataString) {
+      try {
+        const userData = JSON.parse(userDataString);
+        if (userData?.token) {
+          config.headers.set?.("Authorization", `Bearer ${userData.token}`);
+        }
+      } catch (e) {
+        console.warn("Failed to parse user data:", e);
+      }
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 
 // Response interceptor for error handling
 apiClient.interceptors.response.use(

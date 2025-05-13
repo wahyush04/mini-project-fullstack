@@ -18,8 +18,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Filter, Search, Eye } from "lucide-react";
 import { useLog } from '../../hooks/useLog';
-import { LogService } from "../../service/log.service";
-import type { LogModel } from "../../types/logs.type";
+import type { LogModel } from "../../types/model/logs.type";
 import { useNavigate } from "react-router-dom";
 
 
@@ -66,7 +65,6 @@ const AdminReportsTab = () => {
 
   return (
     <div className="space-y-6">
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">

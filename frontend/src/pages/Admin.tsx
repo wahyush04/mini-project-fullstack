@@ -11,10 +11,8 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState("products");
   const navigate = useNavigate();
 
-  // Check if user is logged in and has admin role
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    console.log("pos", user.role)
 
     if (!user.role) {
       navigate("/login");

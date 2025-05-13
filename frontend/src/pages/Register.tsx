@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -15,8 +14,17 @@ import {
   FormLabel,
   FormMessage,
 } from "../components/ui/form";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Eye, EyeOff, User, Mail, Phone, Lock } from "lucide-react";
+import { useRegister } from "@/hooks/useAuth";
+import type { RegisterRequestModel } from "@/types/request/register.request";
 
 const formSchema = z.object({
   fullname: z.string().min(2, "Full name must be at least 2 characters"),
@@ -38,7 +46,6 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const Register = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
@@ -55,31 +62,37 @@ const Register = () => {
     },
   });
 
+  const {
+    registerData,
+    isLoading,
+    isError,
+    errorMessage,
+    status,
+    register: registerUser,
+    reset,
+  } = useRegister();
+
   const onSubmit = (data: FormValues) => {
-    setIsLoading(true);
-    
-    // Simulate API request
-    setTimeout(() => {
-      // In a real app, you would send this data to your backend
-      console.log("Registration data:", data);
-      
-      // Store the new user in localStorage (in a real app, use a proper auth solution)
-      const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
-      existingUsers.push({
-        fullname: data.fullname,
-        username: data.username,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
-        password: data.password,
-        role: "student" // Default role for new registrations
-      });
-      localStorage.setItem("users", JSON.stringify(existingUsers));
-      
-      toast.success("Registration successful! You can now login.");
-      navigate("/login");
-      setIsLoading(false);
-    }, 1000);
+    const request: RegisterRequestModel = {
+      fullname: data.fullname,
+      username: data.username,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+      password: data.password,
+    };
+    registerUser(request);
   };
+
+  if (registerData) {
+    console.log("97", registerData);
+    toast.success("Registration successful! You can now login.");
+    navigate("/login");
+    reset();
+  }
+
+  if (isError && errorMessage) {
+    toast.error(errorMessage);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-pos-bg-light p-4">
@@ -93,6 +106,7 @@ const Register = () => {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {/* Fullname */}
               <FormField
                 control={form.control}
                 name="fullname"
@@ -102,18 +116,15 @@ const Register = () => {
                     <FormControl>
                       <div className="relative">
                         <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          placeholder="Enter your full name" 
-                          className="pl-10" 
-                          {...field} 
-                        />
+                        <Input placeholder="Enter your full name" className="pl-10" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
+              {/* Username */}
               <FormField
                 control={form.control}
                 name="username"
@@ -123,18 +134,15 @@ const Register = () => {
                     <FormControl>
                       <div className="relative">
                         <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          placeholder="Choose a username" 
-                          className="pl-10" 
-                          {...field} 
-                        />
+                        <Input placeholder="Choose a username" className="pl-10" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
+              {/* Email */}
               <FormField
                 control={form.control}
                 name="email"
@@ -144,19 +152,15 @@ const Register = () => {
                     <FormControl>
                       <div className="relative">
                         <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          type="email" 
-                          placeholder="Enter your email" 
-                          className="pl-10" 
-                          {...field} 
-                        />
+                        <Input type="email" placeholder="Enter your email" className="pl-10" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
+              {/* Phone Number */}
               <FormField
                 control={form.control}
                 name="phoneNumber"
@@ -166,18 +170,15 @@ const Register = () => {
                     <FormControl>
                       <div className="relative">
                         <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          placeholder="Enter your phone number" 
-                          className="pl-10" 
-                          {...field} 
-                        />
+                        <Input placeholder="Enter your phone number" className="pl-10" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
+              {/* Password */}
               <FormField
                 control={form.control}
                 name="password"
@@ -187,11 +188,11 @@ const Register = () => {
                     <FormControl>
                       <div className="relative">
                         <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          type={showPassword ? "text" : "password"} 
-                          placeholder="Create a password" 
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Create a password"
                           className="pl-10 pr-10"
-                          {...field} 
+                          {...field}
                         />
                         <Button
                           type="button"
@@ -205,9 +206,7 @@ const Register = () => {
                           ) : (
                             <Eye className="h-4 w-4 text-muted-foreground" />
                           )}
-                          <span className="sr-only">
-                            {showPassword ? "Hide password" : "Show password"}
-                          </span>
+                          <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
                         </Button>
                       </div>
                     </FormControl>
@@ -215,7 +214,8 @@ const Register = () => {
                   </FormItem>
                 )}
               />
-              
+
+              {/* Confirm Password */}
               <FormField
                 control={form.control}
                 name="confirmPassword"
@@ -225,11 +225,11 @@ const Register = () => {
                     <FormControl>
                       <div className="relative">
                         <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          type={showConfirmPassword ? "text" : "password"} 
-                          placeholder="Confirm your password" 
+                        <Input
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="Confirm your password"
                           className="pl-10 pr-10"
-                          {...field} 
+                          {...field}
                         />
                         <Button
                           type="button"
@@ -243,9 +243,7 @@ const Register = () => {
                           ) : (
                             <Eye className="h-4 w-4 text-muted-foreground" />
                           )}
-                          <span className="sr-only">
-                            {showConfirmPassword ? "Hide password" : "Show password"}
-                          </span>
+                          <span className="sr-only">{showConfirmPassword ? "Hide password" : "Show password"}</span>
                         </Button>
                       </div>
                     </FormControl>
@@ -253,12 +251,8 @@ const Register = () => {
                   </FormItem>
                 )}
               />
-              
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isLoading}
-              >
+
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Registering..." : "Register"}
               </Button>
             </form>
@@ -267,7 +261,9 @@ const Register = () => {
         <CardFooter className="flex flex-col space-y-2">
           <div className="text-sm text-center text-muted-foreground">
             <p>Already have an account?</p>
-            <Button variant="link" onClick={() => navigate("/login")}>Login here</Button>
+            <Button variant="link" onClick={() => navigate("/login")}>
+              Login here
+            </Button>
           </div>
         </CardFooter>
       </Card>

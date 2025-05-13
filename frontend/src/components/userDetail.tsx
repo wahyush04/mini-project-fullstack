@@ -19,8 +19,7 @@ const UserDetail: React.FC = () => {
     user,
     isLoading: userLoading,
     isError: userError,
-    errorMessage: userErrorMessage,
-    deleteUser
+    errorMessage: userErrorMessage
   } = useUser(userId);
   
   // Get user's posts
@@ -41,13 +40,6 @@ const UserDetail: React.FC = () => {
   // Handle delete user
   const handleDelete = async () => {
     if (!userId || !user) return;
-    
-    if (window.confirm(`Are you sure you want to delete ${user.fullname}?`)) {
-      const result = await deleteUser(userId);
-      if (result) {
-        navigate('/users');
-      }
-    }
   };
   
   // Show loading state

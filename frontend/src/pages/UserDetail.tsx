@@ -4,17 +4,18 @@ import Layout from "../components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "../components/ui/avatar";
 import { Separator } from "../components/ui/separator";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "../components/ui/table";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { ArrowLeft, Mail, Phone } from "lucide-react";
+import { useUser } from "@/hooks/useUser";
 
 interface User {
   id: number;
@@ -38,33 +39,18 @@ interface Course {
 const UserDetail = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [ongoingCourses, setOngoingCourses] = useState<Course[]>([]);
   const [completedCourses, setCompletedCourses] = useState<Course[]>([]);
 
+  const {
+    user,
+    isLoading: userLoading,
+    isError: userError,
+    errorMessage: userErrorMessage
+  } = useUser(userId);
+
   useEffect(() => {
-    // Check if user is logged in and has admin role
-    // const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
-    // if (!loggedInUser.username || loggedInUser.role !== "admin") {
-    //   navigate("/login");
-    //   return;
-    // }
-
-    // Mock user data
-    const mockUser: User = {
-      id: Number(userId),
-      username: "johndoe",
-      fullname: "John Doe",
-      email: "john.doe@example.com",
-      phoneNumber: "+1 234 567 890",
-      biography: "Passionate learner with interest in web development and programming. Always looking to improve skills and knowledge through online courses.",
-      profilePhoto: "https://randomuser.me/api/portraits/men/44.jpg",
-      totalPoints: 1250
-    };
-    setUser(mockUser);
-
-    // Mock courses data
     const mockCourses: Course[] = [
       {
         id: 1,
@@ -106,6 +92,22 @@ const UserDetail = () => {
     setCompletedCourses(mockCourses.filter(course => course.status === "Completed"));
   }, [userId]);
 
+    // Show loading state
+    if (userLoading) {
+      return <div className="loading">Loading user details...</div>;
+    }
+    
+    // Show error state
+    if (userError) {
+      return (
+        <div className="error">
+          <h3>Error loading user</h3>
+          <p>{userErrorMessage}</p>
+          <button onClick={() => navigate('/admin')}>Back to Dashboard</button>
+        </div>
+      );
+    }
+
   if (!user) {
     return null;
   }
@@ -114,8 +116,8 @@ const UserDetail = () => {
     <Layout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => navigate("/admin")}
             className="flex items-center gap-2"
@@ -133,37 +135,37 @@ const UserDetail = () => {
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex flex-col items-center md:w-1/3">
                 <Avatar className="h-32 w-32 mb-4">
-                  {user.profilePhoto ? (
-                    <AvatarImage src={user.profilePhoto} alt={user.fullname} />
+                  {user.data.profilePhoto ? (
+                    <AvatarImage src={user.data.profilePhoto} alt={user.fullname} />
                   ) : (
                     <AvatarFallback>{user.fullname.substring(0, 2).toUpperCase()}</AvatarFallback>
                   )}
                 </Avatar>
-                
+
                 <div className="text-center">
                   <h2 className="text-xl font-bold">{user.fullname}</h2>
                   <p className="text-gray-500">@{user.username}</p>
                 </div>
-                
+
                 <Card className="w-full mt-4">
                   <CardContent className="p-4">
                     <div className="flex flex-col items-center">
                       <span className="text-sm text-gray-500">Total Points</span>
-                      <span className="text-3xl font-bold text-primary">{user.totalPoints}</span>
+                      <span className="text-3xl font-bold text-primary">{user.data.points}</span>
                     </div>
                   </CardContent>
                 </Card>
               </div>
-              
+
               <div className="md:w-2/3">
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-base font-medium mb-2">Biography</h3>
-                    <p className="text-gray-600">{user.biography}</p>
+                    <p className="text-gray-600">{user.data.biography}</p>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-2">
                     <h3 className="text-base font-medium">Contact Information</h3>
                     <div className="flex items-center gap-2">
@@ -180,7 +182,7 @@ const UserDetail = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         {/* Ongoing Courses */}
         <Card>
           <CardHeader className="pb-2">
@@ -208,8 +210,8 @@ const UserDetail = () => {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <div className="h-2 w-full bg-gray-200 rounded-full">
-                            <div 
-                              className="h-full bg-primary rounded-full" 
+                            <div
+                              className="h-full bg-primary rounded-full"
                               style={{ width: `${course.progress}%` }}
                             />
                           </div>
@@ -227,7 +229,7 @@ const UserDetail = () => {
             )}
           </CardContent>
         </Card>
-        
+
         {/* Completed Courses */}
         <Card>
           <CardHeader className="pb-2">

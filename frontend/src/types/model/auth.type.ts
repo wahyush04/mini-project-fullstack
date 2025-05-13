@@ -1,4 +1,4 @@
-import type { UserRole } from "./enum/role";
+import type { UserRole } from "../enum/role";
 
 export interface LoginModel {
   status: string;
@@ -16,6 +16,15 @@ export interface LoginModel {
 export interface LoginDataModel {
   points: number;
   role: UserRole;
+}
+
+
+export interface RegisterResponseModel {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 

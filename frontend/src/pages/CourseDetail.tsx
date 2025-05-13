@@ -1,13 +1,16 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProducts } from "../lib/productService";
-import type { Product } from "../components/pos/ProductCard";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Book, User, Clock, Award, Play } from "lucide-react";
 import CourseLayout from "../components/layout/CourseLayout";
 import { toast } from "sonner";
+import { useCourse } from '../hooks/useCourse';
+import { useCreateExam } from '../hooks/useExam';
+import { useTryoutSectionDetail } from '../hooks/useTryoutSection';
+import type { CreateExamRequestModel } from '../types/request/createExamRequest';
+import { ExamStatusType } from "@/types/enum/ExamStatusType";
 
 // Testimonial interface
 interface Testimonial {
@@ -18,82 +21,203 @@ interface Testimonial {
   date: string;
 }
 
+interface CourseDetailModel {
+  title: string;
+  description: string;
+  totalStudent: number;
+  estimateTime: number;
+  level: string;
+  type: string;
+  image: string;
+  point: number
+}
+
 const CourseDetail = () => {
-  const { courseId } = useParams();
+  const { courseId, type } = useParams();
+  const userDataString = localStorage.getItem("user");
+  let userData = null;
+  if (userDataString) {
+    userData = JSON.parse(userDataString);
+  } else {
+    console.log("No user data found in localStorage");
+  }
   const navigate = useNavigate();
-  const [course, setCourse] = useState<Product | null>(null);
+  const [uiState, setUiState] = useState<CourseDetailModel>({
+    title: "",
+    description: "",
+    totalStudent: 0,
+    estimateTime: 0,
+    level: "",
+    type: "",
+    image: "",
+    point: 0
+  });
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
-  useEffect(() => {
-    // Check if user is logged in
-    // const user = JSON.parse(localStorage.getItem("user") || "{}");
-    // if (!user.username) {
-    //   navigate("/login");
-    //   return;
-    // }
+  const {
+    result: createdExam,
+    isLoading: isLoadingCreateExam,
+    isError: isErrorCreateExam,
+    errorMessage: errorMessageCreateExam,
+    createExam: createNewExam,
+    reset: resetCreateExam
+  } = useCreateExam();
 
-    // Load course data
-    const allCourses = getProducts();
-    const selectedCourse = allCourses.find((c) => c.id === Number(courseId));
-    
-    if (selectedCourse) {
-      console.log("Selected course:", selectedCourse);
-      setCourse(selectedCourse);
-      
-      // Mock testimonials data for the course
-      const mockTestimonials = [
-        {
-          id: 1,
-          name: "Sarah Johnson",
-          rating: 5,
-          comment: "This course completely transformed my understanding of the subject. Highly recommended!",
-          date: "2 weeks ago"
-        },
-        {
-          id: 2,
-          name: "Michael Chen",
-          rating: 4,
-          comment: "Great explanations and practical exercises. Would have given 5 stars but some sections felt rushed.",
-          date: "1 month ago"
-        },
-        {
-          id: 3,
-          name: "Emma Wilson",
-          rating: 5,
-          comment: "Excellent course! The instructor explains complex topics in a simple, understandable way.",
-          date: "2 months ago"
-        }
-      ];
-      
-      setTestimonials(mockTestimonials);
-    } else {
-      // Course not found
-      toast.error("Course not found");
-      navigate("/pos");
+  const {
+    tryoutSection,
+    isLoading: isLoadingTryoutSection,
+    isError: isErrorTryoutSection,
+    errorMessage: errorMessageTryoutSection,
+    getTryoutSectionbyId: fetchTryoutSection,
+  } = useTryoutSectionDetail();
+
+  const {
+    course,
+    isLoading,
+    isError,
+    errorMessage,
+    fetchCourse,
+    reset
+  } = useCourse();
+
+  useEffect(() => {
+    if (course) {
+      console.log("course 81", course);
+      setUiState({
+        title: course.data.title,
+        description: course.data.description,
+        totalStudent: course.data.data.totalStudent,
+        estimateTime: course.data.data.estimateTime,
+        level: course.data.data.level,
+        type: type as any,
+        image: course.data.data.image,
+        point: course.data.data.point
+      });
+    } else if (tryoutSection) {
+      setUiState({
+        title: tryoutSection.data.title,
+        description: tryoutSection.data.description,
+        totalStudent: tryoutSection.data.data.totalStudent,
+        estimateTime: tryoutSection.data.data.estimateTime,
+        level: tryoutSection.data.data.level,
+        type: type as any,
+        image: tryoutSection.data.data.image,
+        point: tryoutSection.data.data.point
+      });
     }
-  }, [courseId, navigate]);
+    
+  }, [course, type, fetchCourse, tryoutSection]);
+
+  useEffect(() => {
+    if (createdExam) {
+      console.log("createdExam", createdExam);
+      toast.success(`You've enrolled in ${uiState.title}`);
+      const path = uiState?.type === "tryout"
+        ? `/course/quiz/${courseId}`
+        : `/course/material/${courseId}`;
+  
+      navigate(path, {
+        state: {
+          examId: createdExam.data.id,
+          type: uiState.type,
+          point: uiState.point
+        }
+      });
+  
+      resetCreateExam();
+      reset();
+    }
+  }, [createdExam, uiState, courseId, navigate, reset, resetCreateExam]);
+
+  useEffect(() => {
+    console.log("type 104", type);
+    if (type === "course" && courseId) {
+      fetchCourse(courseId);
+    } (type === "tryout" && courseId) && fetchTryoutSection(courseId);
+
+    const mockTestimonials = [
+      {
+        id: 1,
+        name: "Sarah Johnson",
+        rating: 5,
+        comment: "This course completely transformed my understanding of the subject. Highly recommended!",
+        date: "2 weeks ago"
+      },
+      {
+        id: 2,
+        name: "Michael Chen",
+        rating: 4,
+        comment: "Great explanations and practical exercises. Would have given 5 stars but some sections felt rushed.",
+        date: "1 month ago"
+      },
+      {
+        id: 3,
+        name: "Emma Wilson",
+        rating: 5,
+        comment: "Excellent course! The instructor explains complex topics in a simple, understandable way.",
+        date: "2 months ago"
+      }
+    ];
+
+    setTestimonials(mockTestimonials);
+  }, [courseId, type, fetchCourse]); // Add dependencies
 
   const handleTakeCourse = () => {
-    toast.success(`You've enrolled in ${course?.name}`);
-    
-    // Navigate to appropriate page based on course type
-    if (course?.type === "tryout") {
-      navigate(`/course/${courseId}/quiz`);
-    } else {
-      navigate(`/course/${courseId}/material`);
-    }
+    const request: CreateExamRequestModel = {
+      userId: userData.userId,
+      tag: 'exam',
+      data: {
+        status: ExamStatusType.IN_PROGRESS,
+      },
+    };
+    createNewExam(request)
   };
 
-  if (!course) return null;
+  // if (createdExam) {
+  //   toast.success(`You've enrolled in ${uiState.title}`);
+  //   if (uiState?.type === "tryout") {
+  //     navigate(`/course/quiz/${courseId}`,{
+  //       state: {
+  //         examId: createdExam.data.id,
+  //         type: "tryout",
+  //         point: uiState.point
+  //       }
+  //     });
+  //     reset();
+  //   } else {
+  //     navigate(`/course/material/${courseId}`,{
+  //       state: {
+  //         examId: createdExam.data.id,
+  //         type: "tryout",
+  //         point: uiState.point
+  //       }
+  //     });
+  //     reset();
+  //   }
+  // }
+
+  if (isLoading || isLoadingTryoutSection) {
+    return <div>Loading courses...</div>;
+  }
+
+  if (isError || isErrorTryoutSection) {
+    return <div className="text-red-500">{errorMessage}</div>;
+  }
+
+  if (type === "tryout" && !tryoutSection) {
+    return null
+  } else if (type === "course" && !course) {
+    return null
+  }
 
   return (
     <CourseLayout>
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-pos-text-dark mb-4">{course.name}</h1>
-            <p className="text-lg text-pos-neutral mb-6">{course.description}</p>
-            
+            <h1 className="text-3xl font-bold text-pos-text-dark mb-4">{uiState.title}</h1>
+            <p className="text-lg text-pos-neutral mb-6">{uiState.description}</p>
+
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="flex items-center gap-1 px-3 py-1">
@@ -116,23 +240,23 @@ const CourseDetail = () => {
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="flex items-center gap-1 px-3 py-1">
                   <Book size={16} />
-                  <span>{course.type === "tryout" ? "Quiz" : "Self-paced"}</span>
+                  <span>{uiState.type === "tryout" ? "Quiz" : "Self-paced"}</span>
                 </Badge>
               </div>
             </div>
-            
+
             <Button onClick={handleTakeCourse} className="bg-primary flex items-center gap-2">
               <Play size={16} />
-              {course.type === "tryout" ? "Take This Quiz" : "Take This Course"}
+              {uiState.type === "tryout" ? "Take This Quiz" : "Take This Course"}
             </Button>
           </div>
-          
+
           <div className="aspect-video overflow-hidden bg-gray-100 rounded-lg mb-8">
-            {course.image ? (
-              <img 
-                src={course.image} 
-                alt={course.name} 
-                className="w-full h-full object-cover" 
+            {uiState.image ? (
+              <img
+                src={uiState.image}
+                alt={uiState.title}
+                className="w-full h-full object-cover"
               />
             ) : (
               <div className="flex items-center justify-center h-full bg-gray-200">
@@ -141,22 +265,22 @@ const CourseDetail = () => {
             )}
           </div>
         </div>
-        
+
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Course Description</h2>
           <div className="prose prose-slate max-w-none">
             <p className="text-pos-neutral">
-              {course.description || "This course will teach you everything you need to know about this subject. Join thousands of students who have already benefited from this comprehensive learning experience."}
+              {uiState.description || "This course will teach you everything you need to know about this subject. Join thousands of students who have already benefited from this comprehensive learning experience."}
             </p>
-            
+
             {/* Debug information - remove in production */}
             <div className="mt-4 p-2 bg-gray-100 rounded text-xs">
-              <p>Course ID: {course.id}</p>
-              <p>Course Type: {course.type || "Not specified"}</p>
+              <p>Course ID: {uiState.title}</p>
+              <p>Course Type: {uiState.type || "Not specified"}</p>
             </div>
           </div>
         </div>
-        
+
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-6">Student Testimonials</h2>
           <div className="space-y-4">
@@ -168,7 +292,7 @@ const CourseDetail = () => {
                 </div>
                 <div className="flex items-center mb-2">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <svg 
+                    <svg
                       key={i}
                       className={`h-4 w-4 ${i < testimonial.rating ? 'text-primary' : 'text-gray-300'}`}
                       fill="currentColor"

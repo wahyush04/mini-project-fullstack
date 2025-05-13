@@ -3,7 +3,7 @@ import * as CourseService from '../services/course.service';
 
 export const getCourses = async (req: Request, res: Response) => {
   const courses = await CourseService.getAllCourses();
-  res.json(courses);
+  res.status(200).json({ status: "success", code: 200, data: courses });
 };
 
 export const getCourseById = async (req: Request, res: Response) => {
@@ -13,7 +13,7 @@ export const getCourseById = async (req: Request, res: Response) => {
   
     if (!course) res.status(404).json({ message: 'Course not found' });
   
-    res.json(course);
+    res.json({ status: "success", code: 200, data: course });
   };
   
 

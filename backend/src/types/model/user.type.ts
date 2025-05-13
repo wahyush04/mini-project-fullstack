@@ -11,4 +11,7 @@ export interface UserModel {
 
 export interface UserDataModel {
     points: number;
+    role: string;
+    biography: string;
+    profilePhoto?: string;
 }

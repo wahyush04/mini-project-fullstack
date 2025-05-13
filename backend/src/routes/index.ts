@@ -9,7 +9,7 @@ import TryoutSectionRouter from "./tryout.section.raoute";
 const router = express.Router();
 
 router.use("/auth", AuthRouter);
-router.use("/course", CourseRouter);
+router.use("/courses", CourseRouter);
 router.use("/users", UserRouter);
 router.use("/logs", LogRouter);
 router.use("/exams", ExamRouter);

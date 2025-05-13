@@ -1,17 +1,17 @@
 
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { getProducts } from "../lib/productService";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import type { Product } from "../components/pos/ProductCard";
 import { Button } from "../components/ui/button";
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
 import { Label } from "../components/ui/label";
-import { Checkbox } from "../components/ui/checkbox";
 import { Progress } from "../components/ui/progress";
 import { Card } from "../components/ui/card";
 import { toast } from "sonner";
 import { Check, Timer, Flag, ArrowRight, ArrowLeft } from "lucide-react";
 import CourseLayout from "../components/layout/CourseLayout";
+import { useCreateLog } from "@/hooks/useLog";
+import type { CreateLogRequest } from "@/types/request/createLogRequest";
 
 // Quiz question interface
 interface Question {
@@ -24,37 +24,27 @@ interface Question {
 const TryoutQuiz = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const [course, setCourse] = useState<Product | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [questions, setQuestions] = useState<Question[]>([]);
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set());
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
   const [quizCompleted, setQuizCompleted] = useState(false);
+  const userDataString = localStorage.getItem("user");
+  let userData = null;
+  if (userDataString) {
+    userData = JSON.parse(userDataString);
+  } else {
+    console.log("No user data found in localStorage");
+
+  }
+  const { state } = useLocation();
+  const { examId, type, point } = state ?? {};
 
   useEffect(() => {
-    // Check if user is logged in
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (!user.username) {
-      navigate("/login");
-      return;
-    }
-
-    // Load course data
-    const allCourses = getProducts();
-    const selectedCourse = allCourses.find((c) => c.id === Number(courseId));
-    
-    if (selectedCourse && selectedCourse.type === "tryout") {
-      setCourse(selectedCourse);
-      
-      // Generate mock quiz questions
-      const mockQuestions = generateMockQuestions(selectedCourse.name);
-      setQuestions(mockQuestions);
-    } else {
-      // Course not found or not a tryout
-      toast.error("Tryout not found");
-      navigate("/pos");
-    }
+    const mockQuestions = generateMockQuestions("Example Quiz");
+    setQuestions(mockQuestions);
+    reset();
   }, [courseId, navigate]);
 
   // Timer countdown
@@ -63,12 +53,21 @@ const TryoutQuiz = () => {
       const timerId = setTimeout(() => {
         setTimeLeft(timeLeft - 1);
       }, 1000);
-      
+
       return () => clearTimeout(timerId);
     } else if (timeLeft === 0 && !quizCompleted) {
       handleFinishQuiz();
     }
   }, [timeLeft, quizCompleted]);
+
+  const {
+    createLogResponse,
+    isLoading,
+    isError,
+    errorMessage,
+    createLog,
+    reset
+  } = useCreateLog();
 
   const generateMockQuestions = (courseName: string): Question[] => {
     return Array.from({ length: 10 }, (_, i) => ({
@@ -121,9 +120,23 @@ const TryoutQuiz = () => {
         correctAnswers++;
       }
     });
-    
+
     const score = Math.round((correctAnswers / questions.length) * 100);
-    
+
+    const request: CreateLogRequest = {
+      data: {
+        userId: userData.userId,
+        code: "COMPLETE_TRYOUT_SECTION",
+        action: "finish",
+        description: "Quiz completed",
+        data: {
+          point: point
+        }
+      },
+      examId: examId
+    }
+    createLog(request)
+
     setQuizCompleted(true);
     toast.success(`Quiz completed! Your score: ${score}%`);
   };
@@ -142,15 +155,15 @@ const TryoutQuiz = () => {
     return Object.keys(selectedAnswers).length === questions.length;
   };
 
-  if (!course || questions.length === 0) return null;
+  if (questions.length === 0) return null;
 
   const currentQuestion = questions[currentQuestionIndex];
 
-  if (quizCompleted) {
+  if (quizCompleted && createLogResponse) {
     // Results page
     const correctAnswers = questions.filter((q, idx) => selectedAnswers[idx] === q.correctAnswer).length;
     const score = Math.round((correctAnswers / questions.length) * 100);
-    
+
     return (
       <CourseLayout>
         <div className="max-w-2xl mx-auto my-8">
@@ -160,9 +173,9 @@ const TryoutQuiz = () => {
             <p className="text-lg mb-4">
               You answered {correctAnswers} out of {questions.length} questions correctly.
             </p>
-            
+
             <div className="mt-8">
-              <Button 
+              <Button
                 onClick={() => navigate("/pos")}
                 className="bg-primary"
               >
@@ -180,13 +193,13 @@ const TryoutQuiz = () => {
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold">{course.name} - Quiz</h1>
+            <h1 className="text-2xl font-bold">{"Example Quiz"} - Quiz</h1>
             <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
               <Timer size={18} className="text-primary" />
               <span className="font-medium">{formatTime(timeLeft)}</span>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
@@ -195,9 +208,9 @@ const TryoutQuiz = () => {
                   <Flag size={16} className="text-primary" />
                 )}
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleToggleFlag}
                 className={flaggedQuestions.has(currentQuestionIndex) ? "bg-primary/10" : ""}
               >
@@ -205,14 +218,14 @@ const TryoutQuiz = () => {
                 {flaggedQuestions.has(currentQuestionIndex) ? "Unflag" : "Flag"}
               </Button>
             </div>
-            
+
             <Progress value={calculateProgress()} className="mb-6" />
-            
+
             <div className="mb-6">
               <h3 className="text-xl font-medium mb-4">{currentQuestion.text}</h3>
-              
-              <RadioGroup 
-                value={selectedAnswers[currentQuestionIndex]?.toString()} 
+
+              <RadioGroup
+                value={selectedAnswers[currentQuestionIndex]?.toString()}
                 onValueChange={(value) => handleAnswerSelect(parseInt(value))}
                 className="space-y-3"
               >
@@ -224,21 +237,21 @@ const TryoutQuiz = () => {
                 ))}
               </RadioGroup>
             </div>
-            
+
             <div className="flex justify-between mt-8">
-              <Button 
-                variant="outline" 
-                onClick={handlePrevQuestion} 
+              <Button
+                variant="outline"
+                onClick={handlePrevQuestion}
                 disabled={currentQuestionIndex === 0}
                 className="flex items-center"
               >
                 <ArrowLeft size={16} className="mr-1" />
                 Previous
               </Button>
-              
+
               <div className="flex gap-2">
                 {currentQuestionIndex === questions.length - 1 ? (
-                  <Button 
+                  <Button
                     onClick={handleFinishQuiz}
                     disabled={!allQuestionsAnswered()}
                     className="flex items-center bg-primary"
@@ -247,7 +260,7 @@ const TryoutQuiz = () => {
                     Finish Quiz
                   </Button>
                 ) : (
-                  <Button 
+                  <Button
                     onClick={handleNextQuestion}
                     className="flex items-center"
                   >
@@ -258,7 +271,7 @@ const TryoutQuiz = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-6">
             <h3 className="text-sm font-medium mb-2">Question Navigator</h3>
             <div className="flex flex-wrap gap-2">
@@ -267,9 +280,9 @@ const TryoutQuiz = () => {
                   key={idx}
                   onClick={() => setCurrentQuestionIndex(idx)}
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
-                    ${currentQuestionIndex === idx ? 'bg-primary text-white' : 
-                      selectedAnswers[idx] !== undefined ? 'bg-green-100 text-green-800 border border-green-200' : 
-                      'bg-gray-100 text-gray-800 border border-gray-200'}
+                    ${currentQuestionIndex === idx ? 'bg-primary text-white' :
+                      selectedAnswers[idx] !== undefined ? 'bg-green-100 text-green-800 border border-green-200' :
+                        'bg-gray-100 text-gray-800 border border-gray-200'}
                     ${flaggedQuestions.has(idx) ? 'ring-2 ring-yellow-400' : ''}`}
                 >
                   {idx + 1}

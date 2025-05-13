@@ -1,19 +1,17 @@
+import type { BaseResponse } from '@/types/model/base.response.type';
 import { createApiStore } from '../store/createApiStore';
-import type { LoginModel } from '../types/auth.type';
+import type { LoginModel, RegisterResponseModel } from '../types/model/auth.type';
 import type { RegisterRequestModel } from '../types/request/register.request';
 
-// Create stores with appropriate type parameters
 export const useAuthStore = createApiStore<LoginModel>();
+export const useRegisterStore = createApiStore<BaseResponse<RegisterResponseModel>>();
 
-// User-related API service
 export const AuthService = {
-    // Get paginated list of users
     login: async (email: string, password: string) => {
         return useAuthStore.getState().post(`/auth/login`, { email, password });
     },
 
-    // Get single user by ID
     register: async (request: RegisterRequestModel) => {
-        return useAuthStore.getState().post(`/users/`, {request});
+        return useRegisterStore.getState().post(`/auth/register`, request);
     },
 };
