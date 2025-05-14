@@ -44,7 +44,7 @@ apiClient.interceptors.response.use(
       // Handle 401 Unauthorized
       if (status === 401) {
         // Clear auth data and redirect to login
-        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
         window.location.href = '/login';
       }
       

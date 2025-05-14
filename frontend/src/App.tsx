@@ -12,6 +12,7 @@ import CourseMaterial from "./pages/CourseMaterial";
 import TryoutQuiz from "./pages/TryoutQuiz";
 import UserDetail from "./pages/UserDetail";
 import Dashboard from "./pages/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -24,14 +25,16 @@ const App = () => (
         <Routes>
           {/* Redirect root to login */}
           <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/pos" element={<Dashboard />} />
+            <Route path="/user/:userId" element={<UserDetail />} />
+            <Route path="/course/:courseId/:type" element={<CourseDetail />} />
+            <Route path="/course/material/:courseId" element={<CourseMaterial />} />
+            <Route path="/course/quiz/:courseId" element={<TryoutQuiz />} />
+          </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/pos" element={<Dashboard />} />
-          <Route path="/user/:userId" element={<UserDetail />} />
-          <Route path="/course/:courseId/:type" element={<CourseDetail />} />
-          <Route path="/course/material/:courseId" element={<CourseMaterial />} />
-          <Route path="/course/quiz/:courseId" element={<TryoutQuiz />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

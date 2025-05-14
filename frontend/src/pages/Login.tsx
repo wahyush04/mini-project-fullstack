@@ -18,7 +18,6 @@ import {
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
 import { Eye, EyeOff, User, Lock } from "lucide-react";
 import { useAuth } from '../hooks/useAuth';
-import { AuthService } from "../service/authService";
 import { UserRole } from "../types/enum/role";
 
 
@@ -49,17 +48,16 @@ const Login = () => {
     isError,
     errorMessage,
     status,
+    login,
     reset
   } = useAuth();
 
 
   const onSubmit = (data: FormValues) => {
-    AuthService.login(data.email, data.password);
+    login(data.email, data.password);
   };
 
   useEffect(() => {
-
-    const userData = localStorage.getItem("user");
 
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     console.log("pos", user.role)
@@ -88,12 +86,12 @@ const Login = () => {
       }
     }
 
-    reset();
-  
     if (isError) {
       toast.error(errorMessage);
     }
-  }, [authData]);
+
+    reset();
+  }, [authData, isError, errorMessage]);
   
 
   return (
@@ -176,14 +174,9 @@ const Login = () => {
           </Form>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
-          <div className="text-sm text-center text-muted-foreground">
-            <p>Demo Credentials:</p>
-            <p>Instructor: instructor / teach123</p>
-            <p>Student: student / learn123</p>
-          </div>
           <div className="text-sm text-center text-muted-foreground mt-4">
             <p>Don't have an account?</p>
-            <Button className="bg-primary text-primary-foreground px-4 py-2 rounded-lg" variant="link" onClick={() => navigate("/register")}>Register here</Button>
+            <Button variant="link" onClick={() => navigate("/register")}>Register here</Button>
           </div>
         </CardFooter>
       </Card>

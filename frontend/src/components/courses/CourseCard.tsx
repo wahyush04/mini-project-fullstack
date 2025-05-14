@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Link } from 'react-router-dom';
 import type { CourseModel } from "@/types/model/course.type";
 import type { TryoutSectionModel } from "@/types/model/tryout.section.type";
+import { AspectRatio } from "../ui/aspect-ratio";
 
 interface CourseCardProps {
   course?: (CourseModel & { description?: string; type?: string }) | null;
@@ -25,7 +26,17 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, tryouts, type }) => {
     : { title: course?.title, description: course?.description, type, courseId: course?.id };
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-full flex flex-col overflow-hidden">
+      {/* Add image at the top of the card */}
+      <div className="w-full">
+        <AspectRatio ratio={16 / 9}>
+            <img
+              src="https://miro.medium.com/v2/resize:fit:1200/0*vc4LVhHM3tH-2Sfh.jpg"
+              alt="Course Image"
+              className="object-cover w-full h-full"
+            />
+        </AspectRatio>
+      </div>
       <CardHeader className="pb-2">
         <CardTitle>{data?.title}</CardTitle>
         <CardDescription>{data?.description}</CardDescription>

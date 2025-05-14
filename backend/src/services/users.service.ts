@@ -4,19 +4,34 @@ import { prisma } from '../prisma/client';
 
 // Get all courses
 export const getAllUsers = () => {
-  return prisma.user.findMany();
+  try {
+    return prisma.user.findMany();
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw error;
+  }
 };
 
 // Get a single course by ID
 export const getUserById = (id: string) => {
-  return prisma.user.findUnique({ where: { id } });
+  try {
+    return prisma.user.findUnique({ where: { id } });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw error;
+  }
 };
 
 export const updateUserPoint = async (id: string, points: number) => {
-  return await prisma.$executeRaw`
-    UPDATE users
-    SET data = JSON_SET(data, '$.points', ${points})
-    WHERE id = ${id}`;
+  try {
+    await prisma.$executeRaw`
+      UPDATE users
+      SET data = JSON_SET(data, '$.points', ${points})
+      WHERE id = ${id}`;
+  } catch (error) {
+    console.error('Error updating user points:', error);
+    throw error;
+  }
 };
 
 

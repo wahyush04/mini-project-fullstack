@@ -51,12 +51,6 @@ const CourseMaterial = () => {
   } = useCreateLog();
 
   useEffect(() => {
-    // Check if user is logged in
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    // if (!user.username) {
-    //   navigate("/login");
-    //   return;
-    // }
 
     const mockSections = [
       {

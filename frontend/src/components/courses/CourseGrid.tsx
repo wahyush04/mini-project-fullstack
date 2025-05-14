@@ -1,5 +1,6 @@
 import CourseCard from './CourseCard';
 import { useCourses } from '../../hooks/useCourses';
+import { Loader2 } from 'lucide-react';
 
 const CourseGrid = () => {
   const {
@@ -10,7 +11,11 @@ const CourseGrid = () => {
   } = useCourses();
 
   if (isLoading) {
-    return <div>Loading courses...</div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="animate-spin text-gray-500" size={24} />
+      </div>
+    );
   }
 
   if (isError) {

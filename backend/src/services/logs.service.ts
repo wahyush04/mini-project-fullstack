@@ -4,33 +4,38 @@ import { JsonObject } from '@prisma/client/runtime/library';
 import { S } from '@faker-js/faker/dist/airline-BUL6NtOJ';
 
 export const getAllCompletedLogs = async () => {
-  const logs = await prisma.log.findMany({
-    where: {
-      code: {
-        in: ['COMPLETE_TRYOUT_SECTION', 'COMPLETE_COURSE'],
-      },
-    },
-    include: {
-      user: {
-        select: {
-          username: true,
+  try {
+    const logs = await prisma.log.findMany({
+      where: {
+        code: {
+          in: ['COMPLETE_TRYOUT_SECTION', 'COMPLETE_COURSE'],
         },
       },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
-  return logs.map((log) => ({
-    id: log.id,
-    code: log.code,
-    userId: log.userId,
-    data: log.data,
-    description: log.description,
-    createdAt: log.createdAt,
-    username: log.user?.username ?? null,
-  }));
+    return logs.map((log) => ({
+      id: log.id,
+      code: log.code,
+      userId: log.userId,
+      data: log.data,
+      description: log.description,
+      createdAt: log.createdAt,
+      username: log.user?.username ?? null,
+    }));
+  } catch (error) {
+    console.error('Error fetching logs:', error);
+    throw error;
+  }
 };
 
 export const createLogsAndUpdateStatus = async (
@@ -38,26 +43,31 @@ export const createLogsAndUpdateStatus = async (
   examId: string
 ) => {
 
-  await prisma.$executeRaw`
-    UPDATE exams
-    SET data = JSON_SET(data, '$.status', ${"completed"})
-    WHERE id = ${examId}`;
+  try {
+    await prisma.$executeRaw`
+      UPDATE exams
+      SET data = JSON_SET(data, '$.status', ${"completed"})
+      WHERE id = ${examId}`;
 
-  await prisma.$executeRaw`
-    UPDATE users
-    SET data = JSON_SET(data, '$.points', 
-      COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.points')), 0) + ${data.data.point})
-    WHERE id = ${data.userId}`;
+    await prisma.$executeRaw`
+      UPDATE users
+      SET data = JSON_SET(data, '$.points', 
+        COALESCE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.points')), 0) + ${data.data.point})
+      WHERE id = ${data.userId}`;
 
-  return await prisma.log.create({
-    data: {
-      userId: data.userId,
-      code: data.code,
-      action: "action",
-      description: data.description,
-      data: data.data as unknown as JsonObject,
-    }
-  });
+    return await prisma.log.create({
+      data: {
+        userId: data.userId,
+        code: data.code,
+        action: "action",
+        description: data.description,
+        data: data.data as unknown as JsonObject,
+      }
+    });
+  } catch (error) {
+    console.error('Error creating log and updating status:', error);
+    throw error;
+  }
 };
 
 

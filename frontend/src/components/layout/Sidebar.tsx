@@ -51,7 +51,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     )}>
       <div className="flex flex-col flex-1 overflow-y-auto">
         <div className="p-4">
-          <h2 className="text-xl font-semibold text-pos-text-dark">MinPOS</h2>
+          <h2 className="text-xl font-semibold text-pos-text-dark">E-Learning Admin</h2>
         </div>
         <div className="flex flex-col gap-1 px-3 py-4">
           <nav className="grid gap-1">

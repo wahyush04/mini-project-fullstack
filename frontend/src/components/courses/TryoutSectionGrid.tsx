@@ -1,6 +1,7 @@
 import React from 'react';
 import CourseCard from './CourseCard';
 import { useTryoutSection } from '../../hooks/useTryoutSection';
+import { Loader2 } from 'lucide-react';
 
 const CourseGridTryout: React.FC = () => {
   const {
@@ -12,7 +13,11 @@ const CourseGridTryout: React.FC = () => {
   } = useTryoutSection();
 
   if (isLoading) {
-    return <div>Loading tryouts...</div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="animate-spin text-gray-500" size={24} />
+      </div>
+    );
   }
 
   if (isError) {

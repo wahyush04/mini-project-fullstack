@@ -211,6 +211,7 @@ const AdminCategoriesTab = () => {
                     <Button
                       variant="destructive"
                       size="sm"
+                      className="text-white"
                       onClick={() => handleDelete(category.id)}
                     >
                       Delete

@@ -4,12 +4,22 @@ import { CourseModel, DataCourseDTO } from '../types/model/course.type';
 
 // Get all courses
 export const getAllTryoutSections = () => {
-  return prisma.tryoutSection.findMany();
+  try {
+    return prisma.tryoutSection.findMany();
+  } catch (error) {
+    console.error('Error fetching tryout sections:', error);
+    throw error;
+  }
 };
 
 // Get a single course by ID
 export const getTryoutSectionById = (id: string) => {
-  return prisma.tryoutSection.findUnique({ where: { id } });
+  try {
+    return prisma.tryoutSection.findUnique({ where: { id } });
+  } catch (error) {
+    console.error('Error fetching tryout section by ID:', error);
+    throw error;
+  }
 };
 
 // Create a new course

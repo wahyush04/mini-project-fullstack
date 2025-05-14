@@ -151,14 +151,14 @@ const AdminProductsTab = () => {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Products Management</CardTitle>
+          <CardTitle>User Management</CardTitle>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button>Add Product</Button>
+              <Button>Add User</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add New Product</DialogTitle>
+                <DialogTitle>Add New USer</DialogTitle>
               </DialogHeader>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onAddSubmit)} className="space-y-4">
@@ -295,6 +295,7 @@ const AdminProductsTab = () => {
                     <Button
                       variant="destructive"
                       size="sm"
+                      className="text-white"
                       onClick={() => handleDelete(product.id)}
                     >
                       Delete

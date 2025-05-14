@@ -72,6 +72,15 @@ const Register = () => {
     reset,
   } = useRegister();
 
+  useEffect(() => {
+    if (registerData) {
+      console.log("97", registerData);
+      toast.success("Registration successful! You can now login.");
+      navigate("/login");
+      reset();
+    }
+  }, [registerData]);
+
   const onSubmit = (data: FormValues) => {
     const request: RegisterRequestModel = {
       fullname: data.fullname,
@@ -82,13 +91,6 @@ const Register = () => {
     };
     registerUser(request);
   };
-
-  if (registerData) {
-    console.log("97", registerData);
-    toast.success("Registration successful! You can now login.");
-    navigate("/login");
-    reset();
-  }
 
   if (isError && errorMessage) {
     toast.error(errorMessage);

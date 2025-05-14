@@ -15,7 +15,7 @@ export const authenticateToken = (
   const authHeader = req.headers["authorization"];
   const token = authHeader?.split(" ")[1] as string | undefined;
 
-  if (!token) res.status(401).json({ error: "No token provided" });
+  if (!token) res.status(401).json({ error: "Unaouthorized" });
 
   try {
     const decoded = jwt.verify(token!, JWT_SECRET);
